@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Alianza bardera"
+            android:textColor="@color/texto_secundario"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ficha del jugador"
+            android:textColor="@color/texto_principal"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvNombreFicha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/texto_principal"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="Nombre del jugador" />
+
+        <TextView
+            android:id="@+id/tvPosicionDorsalFicha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/texto_secundario"
+            tools:text="Posición · Dorsal" />
+
+        <LinearLayout
+            android:id="@+id/cvAlertaInhabilitado"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_badge_red"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Inhabilitado · No puede ser alineado"
+                android:textColor="@color/rojo_estado"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Sanción disciplinaria o lesión activa"
+                android:textColor="@color/texto_principal"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Registro disciplinario"
+            android:textColor="@color/texto_principal"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvEstadoDisciplinario"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Consultando estado disciplinario..."
+            android:textColor="@color/texto_secundario" />
+
+        <Button
+            android:id="@+id/btnHabilitarJugador"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/verde_cancha"
+            android:text="Habilitar"
+            android:textColor="@color/blanco"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btnRegistrarIncidenciaFicha"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/verde_cancha"
+            android:text="Registrar inhabilitación"
+            android:textColor="@color/blanco" />
+
+        <Button
+            android:id="@+id/btnEliminarJugador"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/rojo_estado"
+            android:text="Eliminar jugador"
+            android:textColor="@color/blanco" />
+
+    </LinearLayout>
+</ScrollView>

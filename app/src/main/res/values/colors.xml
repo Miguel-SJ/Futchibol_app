@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="verde_cancha">#1B4D2E</color>
+    <color name="verde_cancha_claro">#2D6A4F</color>
+    <color name="verde_estado">#1E7E34</color>
+    <color name="verde_estado_fondo">#E8F5E9</color>
+    <color name="rojo_estado">#D32F2F</color>
+    <color name="rojo_estado_fondo">#FFEBEE</color>
+    <color name="fondo_tarjeta">#F8F9FA</color>
+    <color name="texto_principal">#212529</color>
+    <color name="texto_secundario">#6C757D</color>
+    <color name="borde_gris">#DEE2E6</color>
+    <color name="blanco">#FFFFFF</color>
+</resources>

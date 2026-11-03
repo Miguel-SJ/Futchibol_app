@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Crear Nueva Jornada"
+            android:textColor="@color/texto_principal"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Equipo Local *"
+            android:textColor="@color/texto_principal" />
+
+        <EditText
+            android:id="@+id/etEquipoLocal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_rounded"
+            android:padding="12dp"
+            android:hint="Ej. Alianza bardera" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Equipo Visitante *"
+            android:textColor="@color/texto_principal" />
+
+        <EditText
+            android:id="@+id/etEquipoVisitante"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_rounded"
+            android:padding="12dp"
+            android:hint="Ej. Lisiados team" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Fecha *"
+            android:textColor="@color/texto_principal" />
+
+        <EditText
+            android:id="@+id/etFechaPartido"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_rounded"
+            android:focusable="false"
+            android:clickable="true"
+            android:padding="12dp"
+            android:hint="Seleccionar fecha" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Lugar / Cancha"
+            android:textColor="@color/texto_principal" />
+
+        <EditText
+            android:id="@+id/etLugarPartido"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_rounded"
+            android:padding="12dp"
+            android:hint="Ej. Cancha Sintética El Campín" />
+
+    </LinearLayout>
+</ScrollView>
