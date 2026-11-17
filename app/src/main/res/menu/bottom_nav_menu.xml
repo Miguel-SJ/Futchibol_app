@@ -5,6 +5,10 @@
         android:icon="@android:drawable/ic_menu_today"
         android:title="@string/nav_inicio" />
     <item
+        android:id="@+id/nav_equipos"
+        android:icon="@android:drawable/ic_menu_share"
+        android:title="@string/nav_equipos" />
+    <item
         android:id="@+id/nav_equipo"
         android:icon="@android:drawable/ic_menu_myplaces"
         android:title="@string/nav_equipo" />

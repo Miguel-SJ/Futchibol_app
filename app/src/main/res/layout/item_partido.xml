@@ -11,7 +11,7 @@
         android:id="@+id/tvFechaLugarPartido"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Jornada - fecha y lugar"
+        android:text="Jornada (fecha y lugar)"
         android:textColor="@color/blanco"
         android:textSize="12sp" />
 
@@ -20,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Equipo local vs Equipo visitante"
+        android:text="Local vs Visitante"
         android:textColor="@color/blanco"
         android:textSize="18sp"
         android:textStyle="bold" />

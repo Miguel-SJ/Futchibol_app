@@ -71,6 +71,7 @@ class IncidenciaActivity : AppCompatActivity() {
     }
 
     private fun observarViewModel() {
+        viewModel.nombreEquipo.observe(this) { binding.tvEquipoIncidencia.text = it }
         viewModel.jugadores.observe(this) { jugadores ->
             listaJugadores = jugadores
             val nombres = jugadores.map { "${String.format(Locale.US, "%02d", it.dorsal)} - ${it.nombre}" }

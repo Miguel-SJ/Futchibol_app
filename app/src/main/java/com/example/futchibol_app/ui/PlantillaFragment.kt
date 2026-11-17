@@ -68,6 +68,8 @@ class PlantillaFragment : Fragment() {
             val habilitados = lista.count { it.activo }
             val inhabilitados = lista.count { !it.activo }
 
+            binding.tvTituloPlantilla.text = "${viewModel.nombreEquipo} - ${lista.size} jugadores"
+
             binding.btnFiltroTodos.text = "Todos ${lista.size}"
             binding.btnFiltroHabilitados.text = "Habilitados $habilitados"
             binding.btnFiltroInhabilitados.text = "Inhabilitados $inhabilitados"

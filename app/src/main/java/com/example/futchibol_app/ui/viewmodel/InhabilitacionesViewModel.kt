@@ -5,7 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.futchibol_app.data.FutbolRepository
-import com.example.futchibol_app.network.JugadorApi
+import com.example.futchibol_app.data.Resultado
+import com.example.futchibol_app.network.*
 import kotlinx.coroutines.launch
 
 class InhabilitacionesViewModel(
@@ -18,50 +19,17 @@ class InhabilitacionesViewModel(
     private val _mensajeError = MutableLiveData<String?>()
     val mensajeError: LiveData<String?> = _mensajeError
 
-    private val _cargando = MutableLiveData<Boolean>(false)
+    private val _cargando = MutableLiveData(false)
     val cargando: LiveData<Boolean> = _cargando
 
     fun cargarInhabilitados() {
         _cargando.value = true
         viewModelScope.launch {
-            try {
-                val respInhabilitados = repository.obtenerJugadoresInhabilitados()
-                val respTodos = repository.obtenerJugadores()
-
-                val mapaInhabilitados = mutableMapOf<String, JugadorApi>()
-
-                if (respInhabilitados.isSuccessful && respInhabilitados.body() != null) {
-                    respInhabilitados.body()!!.forEach { mapaInhabilitados[it.id] = it }
-                }
-
-                if (respTodos.isSuccessful && respTodos.body() != null) {
-                    respTodos.body()!!.filter { !it.activo }.forEach { mapaInhabilitados[it.id] = it }
-                }
-
-                _inhabilitados.value = mapaInhabilitados.values.toList()
-            } catch (e: Exception) {
-                _mensajeError.value = "Error al obtener inhabilitados"
-            } finally {
-                _cargando.value = false
+            when (val r = repository.obtenerPlantilla()) {
+                is Resultado.Ok -> _inhabilitados.value = r.datos.jugadores.filter { !it.activo }
+                is Resultado.Fallo -> _mensajeError.value = r.mensaje
             }
-        }
-    }
-
-    fun resolverInhabilitacion(jugadorId: String) {
-        _cargando.value = true
-        viewModelScope.launch {
-            try {
-                val response = repository.resolverInhabilitacion(jugadorId)
-                if (response.isSuccessful) {
-                    cargarInhabilitados()
-                } else {
-                    cargarInhabilitados()
-                }
-            } catch (e: Exception) {
-                cargarInhabilitados()
-            } finally {
-                _cargando.value = false
-            }
+            _cargando.value = false
         }
     }
 

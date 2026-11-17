@@ -5,7 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.futchibol_app.data.FutbolRepository
-import com.example.futchibol_app.network.JugadorApi
+import com.example.futchibol_app.data.Resultado
+import com.example.futchibol_app.network.*
 import kotlinx.coroutines.launch
 
 class FichaJugadorViewModel(
@@ -14,6 +15,9 @@ class FichaJugadorViewModel(
 
     private val _jugadorDetalle = MutableLiveData<JugadorApi?>()
     val jugadorDetalle: LiveData<JugadorApi?> = _jugadorDetalle
+
+    private val _historial = MutableLiveData<List<InhabilitacionApi>>(emptyList())
+    val historial: LiveData<List<InhabilitacionApi>> = _historial
 
     private val _eliminacionExitosa = MutableLiveData<Boolean>()
     val eliminacionExitosa: LiveData<Boolean> = _eliminacionExitosa
@@ -24,44 +28,35 @@ class FichaJugadorViewModel(
     private val _mensajeError = MutableLiveData<String?>()
     val mensajeError: LiveData<String?> = _mensajeError
 
-    private val _cargando = MutableLiveData<Boolean>(false)
+    private val _cargando = MutableLiveData(false)
     val cargando: LiveData<Boolean> = _cargando
 
     fun cargarDetalle(jugadorId: String) {
         _cargando.value = true
         viewModelScope.launch {
-            try {
-                val response = repository.obtenerDetalleJugador(jugadorId)
-                if (response.isSuccessful && response.body() != null) {
-                    _jugadorDetalle.value = response.body()
-                } else {
-                    _mensajeError.value = "Fallo al consultar detalle"
+            when (val r = repository.obtenerFicha(jugadorId)) {
+                is Resultado.Ok -> {
+                    _jugadorDetalle.value = r.datos.jugador
+                    _historial.value = r.datos.historial
                 }
-            } catch (e: Exception) {
-                _mensajeError.value = "Fallo de conexión"
-            } finally {
-                _cargando.value = false
+                is Resultado.Fallo -> _mensajeError.value = r.mensaje
             }
+            _cargando.value = false
         }
     }
 
     fun resolverInhabilitacion(jugadorId: String) {
         _cargando.value = true
         viewModelScope.launch {
-            try {
-                val response = repository.resolverInhabilitacion(jugadorId)
-                if (response.isSuccessful) {
-                    _resolucionExitosa.value = true
-                    cargarDetalle(jugadorId)
-                } else {
+            when (val r = repository.resolverInhabilitaciones(jugadorId)) {
+                is Resultado.Ok -> {
                     _resolucionExitosa.value = true
                     cargarDetalle(jugadorId)
                 }
-            } catch (e: Exception) {
-                _resolucionExitosa.value = true
-                cargarDetalle(jugadorId)
-            } finally {
-                _cargando.value = false
+                is Resultado.Fallo -> {
+                    _mensajeError.value = r.mensaje
+                    _cargando.value = false
+                }
             }
         }
     }
@@ -69,18 +64,11 @@ class FichaJugadorViewModel(
     fun eliminarJugador(jugadorId: String) {
         _cargando.value = true
         viewModelScope.launch {
-            try {
-                val response = repository.eliminarJugador(jugadorId)
-                if (response.isSuccessful) {
-                    _eliminacionExitosa.value = true
-                } else {
-                    _eliminacionExitosa.value = true
-                }
-            } catch (e: Exception) {
-                _eliminacionExitosa.value = true
-            } finally {
-                _cargando.value = false
+            when (val r = repository.eliminarJugador(jugadorId)) {
+                is Resultado.Ok -> _eliminacionExitosa.value = true
+                is Resultado.Fallo -> _mensajeError.value = r.mensaje
             }
+            _cargando.value = false
         }
     }
 

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Editar torneo"
+        android:textColor="@color/texto_principal"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Nombre del torneo"
+        android:textColor="@color/texto_principal" />
+
+    <EditText
+        android:id="@+id/etNombreTorneo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_card_rounded"
+        android:inputType="textPersonName"
+        android:padding="12dp"
+        android:hint="Ej. Copa local 2026" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="El equipo se elige en la pestaña Equipos."
+        android:textColor="@color/texto_secundario"
+        android:textSize="12sp" />
+
+</LinearLayout>

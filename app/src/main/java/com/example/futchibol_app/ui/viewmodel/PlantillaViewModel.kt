@@ -5,7 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.futchibol_app.data.FutbolRepository
-import com.example.futchibol_app.network.JugadorApi
+import com.example.futchibol_app.data.Resultado
+import com.example.futchibol_app.network.*
 import kotlinx.coroutines.launch
 
 class PlantillaViewModel(
@@ -21,39 +22,26 @@ class PlantillaViewModel(
     private val _mensajeError = MutableLiveData<String?>()
     val mensajeError: LiveData<String?> = _mensajeError
 
-    private val _cargando = MutableLiveData<Boolean>(false)
+    private val _cargando = MutableLiveData(false)
     val cargando: LiveData<Boolean> = _cargando
 
+    var nombreEquipo: String = ""
+        private set
     var filtroActual = "TODOS"
     var busquedaActual = ""
 
     fun cargarJugadores() {
         _cargando.value = true
         viewModelScope.launch {
-            try {
-                val respTodos = repository.obtenerJugadores()
-                val respInhabilitados = repository.obtenerJugadoresInhabilitados()
-
-                if (respTodos.isSuccessful && respTodos.body() != null) {
-                    val todos = respTodos.body()!!
-                    val inhabilitadosIds = if (respInhabilitados.isSuccessful && respInhabilitados.body() != null) {
-                        respInhabilitados.body()!!.map { it.id }.toSet()
-                    } else emptySet()
-
-                    val listaActualizada = todos.map { jug ->
-                        if (inhabilitadosIds.contains(jug.id)) jug.copy(activo = false) else jug
-                    }
-
-                    _listaCompleta.value = listaActualizada
+            when (val r = repository.obtenerPlantilla()) {
+                is Resultado.Ok -> {
+                    nombreEquipo = r.datos.equipo.nombre
+                    _listaCompleta.value = r.datos.jugadores
                     aplicarFiltros()
-                } else {
-                    _mensajeError.value = "Error al obtener jugadores"
                 }
-            } catch (e: Exception) {
-                _mensajeError.value = "Fallo de conexión"
-            } finally {
-                _cargando.value = false
+                is Resultado.Fallo -> _mensajeError.value = r.mensaje
             }
+            _cargando.value = false
         }
     }
 
@@ -69,19 +57,16 @@ class PlantillaViewModel(
 
     private fun aplicarFiltros() {
         val base = _listaCompleta.value ?: emptyList()
-
         var resultado = when (filtroActual) {
             "HABILITADOS" -> base.filter { it.activo }
             "INHABILITADOS" -> base.filter { !it.activo }
             else -> base
         }
-
         if (busquedaActual.isNotEmpty()) {
             resultado = resultado.filter {
                 it.nombre.lowercase().contains(busquedaActual) || it.dorsal.toString() == busquedaActual
             }
         }
-
         _listaFiltrada.value = resultado
     }
 }

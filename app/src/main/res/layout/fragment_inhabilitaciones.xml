@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="16dp"
-        android:text="Lista de jugadores con sanciones o lesiones activas."
+        android:text="Lista de jugadores con sanciones o lesiones"
         android:textColor="@color/texto_secundario"
         android:textSize="12sp" />
 

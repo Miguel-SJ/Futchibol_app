@@ -24,6 +24,8 @@ class NuevoJugadorActivity : AppCompatActivity() {
 
         observarViewModel()
 
+        viewModel.cargarEquipo()
+
         binding.btnGuardarNuevoJugador.setOnClickListener {
             val nombre = binding.etNombreCompleto.text.toString().trim()
             val dorsalStr = binding.etDorsal.text.toString().trim()
@@ -38,6 +40,7 @@ class NuevoJugadorActivity : AppCompatActivity() {
     }
 
     private fun observarViewModel() {
+        viewModel.nombreEquipo.observe(this) { binding.tvEquipoNuevoJugador.text = it }
         viewModel.exitoGuardar.observe(this) { exito ->
             if (exito) {
                 Toast.makeText(this, "Registrado exitosamente", Toast.LENGTH_SHORT).show()

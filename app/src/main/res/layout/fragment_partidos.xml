@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/verde_cancha"
-            android:text="+ Nueva jornada"
+            android:text="Nueva jornada"
             android:textColor="@color/blanco" />
     </LinearLayout>
 
@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:gravity="center"
-        android:text="No hay partidos registrados. ¡Crear una nueva jornada!"
+        android:text="No hay partidos registrados. Crear una nueva jornada"
         android:textColor="@color/texto_secundario"
         android:visibility="gone" />
 

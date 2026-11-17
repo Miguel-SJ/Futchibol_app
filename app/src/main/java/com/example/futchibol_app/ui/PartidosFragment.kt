@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -13,7 +14,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.futchibol_app.R
 import com.example.futchibol_app.databinding.DialogCrearPartidoBinding
 import com.example.futchibol_app.databinding.FragmentPartidosBinding
 import com.example.futchibol_app.databinding.ItemPartidoBinding
@@ -63,11 +63,17 @@ class PartidosFragment : Fragment() {
             } else {
                 binding.tvSinPartidos.visibility = View.GONE
                 binding.rvPartidos.visibility = View.VISIBLE
-                binding.rvPartidos.adapter = PartidosAdapter(partidos) { partido ->
-                    val intent = Intent(requireContext(), AlineacionActivity::class.java)
-                    intent.putExtra("PARTIDO_ID", partido.id)
-                    startActivity(intent)
-                }
+                binding.rvPartidos.adapter = PartidosAdapter(
+                    items = partidos,
+                    onClickAlineacion = { partido ->
+                        val intent = Intent(requireContext(), AlineacionActivity::class.java)
+                        intent.putExtra("PARTIDO_ID", partido.id)
+                        startActivity(intent)
+                    },
+                    onClickEliminar = { partido ->
+                        confirmarEliminarPartido(partido)
+                    }
+                )
             }
         }
 
@@ -85,8 +91,35 @@ class PartidosFragment : Fragment() {
         }
     }
 
+    private fun confirmarEliminarPartido(partido: PartidoApi) {
+        val localNom = partido.equipoLocal?.nombre ?: "Equipo Local"
+        val visNom = partido.equipoVisitante?.nombre ?: "Equipo Visitante"
+        val nombre = "$localNom vs $visNom"
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Eliminar Jornada")
+            .setMessage("¿Estás seguro de que deseas eliminar la jornada de $nombre?")
+            .setPositiveButton("Eliminar") { _, _ ->
+                viewModel.eliminarPartido(partido.id)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
     private fun mostrarDialogoCrearPartido() {
+        val equipos = viewModel.equipos
+        if (equipos.size < 2) {
+            Toast.makeText(requireContext(), "Necesitas al menos dos equipos. Crea otro en la pestaña Equipos.", Toast.LENGTH_LONG).show()
+            return
+        }
         val dialogBinding = DialogCrearPartidoBinding.inflate(layoutInflater)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, equipos.map { it.nombre })
+        dialogBinding.spEquipoLocal.adapter = adapter
+        dialogBinding.spEquipoVisitante.adapter = adapter
+
+        val iActual = equipos.indexOfFirst { it.id == viewModel.equipoActual?.id }.coerceAtLeast(0)
+        dialogBinding.spEquipoLocal.setSelection(iActual)
+        dialogBinding.spEquipoVisitante.setSelection(if (iActual == 0) 1 else 0)
 
         dialogBinding.etFechaPartido.setOnClickListener {
             mostrarDatePicker(dialogBinding.etFechaPartido)
@@ -95,12 +128,12 @@ class PartidosFragment : Fragment() {
         AlertDialog.Builder(requireContext())
             .setView(dialogBinding.root)
             .setPositiveButton("Crear") { _, _ ->
-                val local = dialogBinding.etEquipoLocal.text.toString().trim()
-                val visitante = dialogBinding.etEquipoVisitante.text.toString().trim()
-                val fecha = dialogBinding.etFechaPartido.text.toString().trim()
-                val lugar = dialogBinding.etLugarPartido.text.toString().trim()
-
-                viewModel.crearPartido(local, visitante, fecha, lugar)
+                viewModel.crearPartido(
+                    equipos.getOrNull(dialogBinding.spEquipoLocal.selectedItemPosition),
+                    equipos.getOrNull(dialogBinding.spEquipoVisitante.selectedItemPosition),
+                    dialogBinding.etFechaPartido.text.toString().trim(),
+                    dialogBinding.etLugarPartido.text.toString().trim()
+                )
             }
             .setNegativeButton("Cancelar", null)
             .show()
@@ -125,7 +158,8 @@ class PartidosFragment : Fragment() {
 
     private class PartidosAdapter(
         private val items: List<PartidoApi>,
-        private val onClickAlineacion: (PartidoApi) -> Unit
+        private val onClickAlineacion: (PartidoApi) -> Unit,
+        private val onClickEliminar: (PartidoApi) -> Unit
     ) : RecyclerView.Adapter<PartidosAdapter.ViewHolder>() {
 
         class ViewHolder(val binding: ItemPartidoBinding) : RecyclerView.ViewHolder(binding.root)
@@ -137,14 +171,18 @@ class PartidosFragment : Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val partido = items[position]
-            val localNom = partido.equipoLocal.nombre
-            val visNom = partido.equipoVisitante.nombre
+            val localNom = partido.equipoLocal?.nombre ?: "Equipo Local"
+            val visNom = partido.equipoVisitante?.nombre ?: "Equipo Visitante"
 
-            holder.binding.tvFechaLugarPartido.text = "Fecha: ${partido.fechaPartido} · Lugar: ${partido.lugar}"
+            holder.binding.tvFechaLugarPartido.text = "Fecha: ${partido.fechaPartido.take(10)} · Lugar: ${partido.lugar.ifBlank { "por definir" }}"
             holder.binding.tvEquiposPartido.text = "$localNom vs $visNom"
 
             holder.binding.btnAlineacionPartido.setOnClickListener {
                 onClickAlineacion(partido)
+            }
+
+            holder.binding.btnEliminarPartido.setOnClickListener {
+                onClickEliminar(partido)
             }
         }
 

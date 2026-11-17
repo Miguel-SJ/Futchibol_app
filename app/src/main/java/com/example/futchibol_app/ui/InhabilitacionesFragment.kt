@@ -14,6 +14,7 @@ import com.example.futchibol_app.R
 import com.example.futchibol_app.databinding.FragmentInhabilitacionesBinding
 import com.example.futchibol_app.databinding.ItemJugadorBinding
 import com.example.futchibol_app.network.JugadorApi
+import com.example.futchibol_app.network.motivoLegible
 import com.example.futchibol_app.ui.viewmodel.InhabilitacionesViewModel
 import java.util.Locale
 
@@ -89,7 +90,8 @@ class InhabilitacionesFragment : Fragment() {
             val jugador = items[position]
             holder.binding.tvDorsalItem.text = String.format(Locale.US, "%02d", jugador.dorsal)
             holder.binding.tvNombreItem.text = jugador.nombre
-            holder.binding.tvPosicionMotivoItem.text = jugador.posicion
+            holder.binding.tvPosicionMotivoItem.text =
+                jugador.inhabilitacion?.let { "${jugador.posicion} · ${it.motivoLegible()}" } ?: jugador.posicion
             holder.binding.tvEstadoItem.text = "Inhabilitado"
             holder.binding.tvEstadoItem.setBackgroundResource(R.drawable.bg_badge_red)
 

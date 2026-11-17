@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Crear Nueva Jornada"
+            android:text="Crear jornada"
             android:textColor="@color/texto_principal"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -21,16 +21,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Equipo Local *"
+            android:text="Equipo local *"
             android:textColor="@color/texto_principal" />
 
-        <EditText
-            android:id="@+id/etEquipoLocal"
+        <Spinner
+            android:id="@+id/spEquipoLocal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_card_rounded"
-            android:padding="12dp"
-            android:hint="Ej. Alianza bardera" />
+            android:padding="12dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -39,13 +38,12 @@
             android:text="Equipo Visitante *"
             android:textColor="@color/texto_principal" />
 
-        <EditText
-            android:id="@+id/etEquipoVisitante"
+        <Spinner
+            android:id="@+id/spEquipoVisitante"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_card_rounded"
-            android:padding="12dp"
-            android:hint="Ej. Lisiados team" />
+            android:padding="12dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -68,7 +66,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Lugar / Cancha"
+            android:text="Lugar"
             android:textColor="@color/texto_principal" />
 
         <EditText
@@ -77,7 +75,15 @@
             android:layout_height="wrap_content"
             android:background="@drawable/bg_card_rounded"
             android:padding="12dp"
-            android:hint="Ej. Cancha Sintética El Campín" />
+            android:hint="Ej. Cancha de por alla" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="¿Falta un equipo? Créalo en la pestaña Equipos."
+            android:textColor="@color/texto_secundario"
+            android:textSize="12sp" />
 
     </LinearLayout>
 </ScrollView>

@@ -41,6 +41,7 @@ class AlineacionActivity : AppCompatActivity() {
     }
 
     private fun observarViewModel() {
+        viewModel.titulo.observe(this) { binding.tvTituloAlineacion.text = it }
         viewModel.jugadoresDisponibles.observe(this) { lista ->
             adapter = AlineacionAdapter(lista, viewModel.jugadoresSeleccionados.value ?: emptySet()) { jugador ->
                 viewModel.toggleSeleccion(jugador)

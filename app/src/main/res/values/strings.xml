@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Control de inhabilitaciones</string>
     <string name="nav_inicio">Inicio</string>
-    <string name="nav_equipo">Equipo</string>
+    <string name="nav_equipos">Equipos</string>
+    <string name="nav_equipo">Plantilla</string>
     <string name="nav_partidos">Partidos</string>
     <string name="nav_bajas">Bajas</string>
 </resources>

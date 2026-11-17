@@ -14,7 +14,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Alianza bardera"
+            android:id="@+id/tvEquipoFicha"
+            android:text=""
             android:textColor="@color/texto_secundario"
             android:textSize="12sp" />
 
@@ -56,7 +57,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Inhabilitado · No puede ser alineado"
+                android:text="Inhabilitado (no puede ser alineado)"
                 android:textColor="@color/rojo_estado"
                 android:textStyle="bold" />
 
@@ -64,7 +65,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Sanción disciplinaria o lesión activa"
+                android:id="@+id/tvDetalleAlerta"
+                android:text="Sanción o lesión activa"
                 android:textColor="@color/texto_principal"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -73,7 +75,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Registro disciplinario"
+            android:text="Registro"
             android:textColor="@color/texto_principal"
             android:textStyle="bold" />
 
@@ -82,7 +84,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Consultando estado disciplinario..."
+            android:text="Consultando estado disciplinario"
+            android:textColor="@color/texto_secundario" />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Historial de sanciones"
+            android:textColor="@color/texto_principal"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvHistorialFicha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:textColor="@color/texto_secundario" />
 
         <Button

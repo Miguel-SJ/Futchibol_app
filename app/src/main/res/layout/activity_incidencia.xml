@@ -13,7 +13,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Alianza bardera"
+            android:id="@+id/tvEquipoIncidencia"
+            android:text=""
             android:textColor="@color/texto_secundario"
             android:textSize="12sp" />
 

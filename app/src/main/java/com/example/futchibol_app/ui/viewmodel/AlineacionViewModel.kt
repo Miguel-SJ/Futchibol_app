@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.futchibol_app.data.FutbolRepository
-import com.example.futchibol_app.network.GuardarAlineacionRequest
-import com.example.futchibol_app.network.JugadorApi
+import com.example.futchibol_app.data.Resultado
+import com.example.futchibol_app.network.*
 import kotlinx.coroutines.launch
 
 class AlineacionViewModel(
@@ -19,50 +19,73 @@ class AlineacionViewModel(
     private val _jugadoresSeleccionados = MutableLiveData<Set<JugadorApi>>(emptySet())
     val jugadoresSeleccionados: LiveData<Set<JugadorApi>> = _jugadoresSeleccionados
 
+    private val _titulo = MutableLiveData<String>()
+    val titulo: LiveData<String> = _titulo
+
     private val _guardadoExitoso = MutableLiveData<Boolean>()
     val guardadoExitoso: LiveData<Boolean> = _guardadoExitoso
 
     private val _mensaje = MutableLiveData<String?>()
     val mensaje: LiveData<String?> = _mensaje
 
-    private val _cargando = MutableLiveData<Boolean>(false)
+    private val _cargando = MutableLiveData(false)
     val cargando: LiveData<Boolean> = _cargando
 
-    fun cargarJugadoresHabilitados(partidoId: String?) {
-        val idFinal = if (partidoId.isNullOrEmpty()) "default_partido" else partidoId
+    private var tipoEquipo: String? = null
+
+    fun cargarJugadoresHabilitados(partidoId: String?, conservarSeleccion: Boolean = false) {
+        if (partidoId == null) {
+            _mensaje.value = "No se encontró la jornada"
+            return
+        }
         _cargando.value = true
         viewModelScope.launch {
-            try {
-                val response = repository.obtenerJugadores()
-                if (response.isSuccessful && response.body() != null) {
-                    val disponibles = response.body()!!.filter { it.activo }
-                    _jugadoresDisponibles.value = disponibles
-
-                    val guardadosIds = repository.obtenerAlineacionGuardadaIds(idFinal)
-                    if (guardadosIds.isNotEmpty()) {
-                        val preseleccionados = disponibles.filter { guardadosIds.contains(it.id) }.toSet()
-                        _jugadoresSeleccionados.value = preseleccionados
-                    }
-                } else {
-                    _mensaje.value = "Error al cargar jugadores disponibles"
+            val partido = when (val rp = repository.obtenerPartido(partidoId)) {
+                is Resultado.Ok -> rp.datos
+                is Resultado.Fallo -> {
+                    _mensaje.value = rp.mensaje
+                    _cargando.value = false
+                    return@launch
                 }
-            } catch (e: Exception) {
-                _mensaje.value = "Fallo de conexión al cargar jugadores"
-            } finally {
-                _cargando.value = false
             }
+            _titulo.value = "${partido.equipoLocal?.nombre ?: "Local"} vs ${partido.equipoVisitante?.nombre ?: "Visitante"}"
+            when (val r = repository.obtenerPlantilla()) {
+                is Resultado.Ok -> {
+                    val equipo = r.datos.equipo
+                    tipoEquipo = when (equipo.id) {
+                        partido.equipoLocal?.id -> "local"
+                        partido.equipoVisitante?.id -> "visitante"
+                        else -> null
+                    }
+                    if (tipoEquipo == null) {
+                        _jugadoresDisponibles.value = emptyList()
+                        _mensaje.value = "${equipo.nombre} no juega en esta jornada"
+                    } else {
+                        val disponibles = r.datos.jugadores.filter { it.activo }
+                        _jugadoresDisponibles.value = disponibles
+                        _jugadoresSeleccionados.value = if (conservarSeleccion) {
+                            _jugadoresSeleccionados.value.orEmpty()
+                                .filter { sel -> disponibles.any { it.id == sel.id } }
+                                .toSet()
+                        } else {
+                            val guardados = if (tipoEquipo == "local") partido.alineacionLocal else partido.alineacionVisitante
+                            disponibles.filter { it.id in guardados }.toSet()
+                        }
+                    }
+                }
+                is Resultado.Fallo -> _mensaje.value = r.mensaje
+            }
+            _cargando.value = false
         }
     }
 
     fun toggleSeleccion(jugador: JugadorApi) {
         val actuales = _jugadoresSeleccionados.value?.toMutableSet() ?: mutableSetOf()
-        val yaExiste = actuales.any { it.id == jugador.id }
-
-        if (yaExiste) {
+        if (actuales.any { it.id == jugador.id }) {
             actuales.removeAll { it.id == jugador.id }
         } else {
-            if (actuales.size >= 11) {
-                _mensaje.value = "Máximo 11 jugadores permitidos"
+            if (actuales.size >= MAX_JUGADORES) {
+                _mensaje.value = "Máximo $MAX_JUGADORES jugadores permitidos"
                 return
             }
             actuales.add(jugador)
@@ -71,33 +94,36 @@ class AlineacionViewModel(
     }
 
     fun guardarAlineacion(partidoId: String?) {
-        val seleccionados = _jugadoresSeleccionados.value ?: emptySet()
-        if (seleccionados.size < 7) {
-            _mensaje.value = "Se requieren al menos 7 jugadores para armar alineación"
+        val tipo = tipoEquipo
+        if (partidoId == null || tipo == null) {
+            _mensaje.value = "No se puede guardar: la jornada o el equipo no son válidos"
             return
         }
-
-        val ids = seleccionados.map { it.id }
-        val idFinal = if (partidoId.isNullOrEmpty()) "default_partido" else partidoId
-
+        val seleccionados = _jugadoresSeleccionados.value.orEmpty()
+        if (seleccionados.size < MIN_JUGADORES) {
+            _mensaje.value = "Se requieren al menos $MIN_JUGADORES jugadores para armar alineación"
+            return
+        }
         _cargando.value = true
         viewModelScope.launch {
-            try {
-                val request = GuardarAlineacionRequest(
-                    tipoEquipo = "titular",
-                    jugadoresIds = ids
-                )
-                repository.guardarAlineacion(idFinal, request)
-                _guardadoExitoso.value = true
-            } catch (e: Exception) {
-                _guardadoExitoso.value = true
-            } finally {
-                _cargando.value = false
+            val r = repository.guardarAlineacion(partidoId, tipo, seleccionados.map { it.id })
+            _cargando.value = false
+            when (r) {
+                is Resultado.Ok -> _guardadoExitoso.value = true
+                is Resultado.Fallo -> {
+                    _mensaje.value = r.mensaje
+                    if (r.codigo == 409) cargarJugadoresHabilitados(partidoId, conservarSeleccion = true)
+                }
             }
         }
     }
 
     fun limpiarMensaje() {
         _mensaje.value = null
+    }
+
+    private companion object {
+        const val MIN_JUGADORES = 7
+        const val MAX_JUGADORES = 11
     }
 }

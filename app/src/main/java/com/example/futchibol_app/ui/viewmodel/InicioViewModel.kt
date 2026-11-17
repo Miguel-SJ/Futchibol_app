@@ -5,13 +5,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.futchibol_app.data.FutbolRepository
+import com.example.futchibol_app.data.Resultado
+import com.example.futchibol_app.network.*
 import kotlinx.coroutines.launch
 
 data class ResumenInicioState(
+    val nombreTorneo: String = "",
+    val nombreEquipo: String = "",
+    val proximoPartido: PartidoApi? = null,
     val habilitadosCount: Int = 0,
     val inhabilitadosCount: Int = 0,
     val mensajeInhabilitados: String = "",
-    val error: String? = null,
     val cargando: Boolean = false
 )
 
@@ -19,43 +23,57 @@ class InicioViewModel(
     private val repository: FutbolRepository = FutbolRepository()
 ) : ViewModel() {
 
-    private val _uiState = MutableLiveData<ResumenInicioState>(ResumenInicioState())
+    private val _uiState = MutableLiveData(ResumenInicioState())
     val uiState: LiveData<ResumenInicioState> = _uiState
 
+    private val _evento = MutableLiveData<String?>()
+    val evento: LiveData<String?> = _evento
+
     fun cargarResumenJugadores() {
-        _uiState.value = _uiState.value?.copy(cargando = true, error = null)
+        val actual = _uiState.value ?: ResumenInicioState()
+        _uiState.value = actual.copy(cargando = true)
         viewModelScope.launch {
-            try {
-                val respTodos = repository.obtenerJugadores()
-                val respInhabilitados = repository.obtenerJugadoresInhabilitados()
-
-                val todos = if (respTodos.isSuccessful && respTodos.body() != null) respTodos.body()!! else emptyList()
-                val inhabilitadosDirectos = if (respInhabilitados.isSuccessful && respInhabilitados.body() != null) respInhabilitados.body()!! else emptyList()
-
-                val inhabilitadosIds = inhabilitadosDirectos.map { it.id }.toSet()
-
-                val totalInhabilitados = todos.filter { !it.activo || inhabilitadosIds.contains(it.id) }
-                val totalHabilitados = todos.filter { it.activo && !inhabilitadosIds.contains(it.id) }
-
-                val mensaje = if (totalInhabilitados.isNotEmpty()) {
-                    val nombres = totalInhabilitados.joinToString(", ") { it.nombre.split(" ")[0] }
-                    "$nombres no pueden jugar. Consulta el motivo."
-                } else {
-                    "Todos los jugadores están disponibles para alinear."
+            val torneo = repository.nombreTorneo()
+            val proximo = repository.proximoPartido(repository.obtenerPartidos().getOrNull().orEmpty())
+            _uiState.value = when (val r = repository.obtenerPlantilla()) {
+                is Resultado.Ok -> {
+                    val inhabilitados = r.datos.jugadores.filter { !it.activo }
+                    val mensaje = if (inhabilitados.isNotEmpty()) {
+                        val nombres = inhabilitados.joinToString(", ") { it.nombre.substringBefore(" ") }
+                        "$nombres no pueden jugar. Consulta el motivo."
+                    } else {
+                        "Todos los jugadores están disponibles para alinear."
+                    }
+                    ResumenInicioState(
+                        nombreTorneo = torneo,
+                        nombreEquipo = r.datos.equipo.nombre,
+                        proximoPartido = proximo,
+                        habilitadosCount = r.datos.jugadores.size - inhabilitados.size,
+                        inhabilitadosCount = inhabilitados.size,
+                        mensajeInhabilitados = mensaje
+                    )
                 }
-
-                _uiState.value = ResumenInicioState(
-                    habilitadosCount = totalHabilitados.size,
-                    inhabilitadosCount = totalInhabilitados.size,
-                    mensajeInhabilitados = mensaje,
+                is Resultado.Fallo -> actual.copy(
+                    nombreTorneo = torneo,
+                    proximoPartido = proximo,
+                    mensajeInhabilitados = r.mensaje,
                     cargando = false
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value?.copy(
-                    cargando = false,
-                    mensajeInhabilitados = "Error al cargar la información."
                 )
             }
         }
+    }
+
+    fun guardarTorneo(torneo: String) {
+        if (torneo.isBlank()) {
+            _evento.value = "Escribe el nombre del torneo"
+            return
+        }
+        repository.guardarTorneo(torneo)
+        _evento.value = "Torneo actualizado"
+        cargarResumenJugadores()
+    }
+
+    fun limpiarEvento() {
+        _evento.value = null
     }
 }
